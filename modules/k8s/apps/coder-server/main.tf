@@ -8,18 +8,34 @@ terraform {
 
 variable "path" {
   type = string
+  validation {
+    condition     = length(var.path) > 0
+    error_message = "Path must not be empty"
+  }
 }
 
 variable "namespace" {
   type = string
+  validation {
+    condition     = length(var.namespace) > 0
+    error_message = "Namespace must not be empty"
+  }
 }
 
 variable "image_repo" {
   type = string
+  validation {
+    condition     = length(var.image_repo) > 0
+    error_message = "Image repository must not be empty"
+  }
 }
 
 variable "image_tag" {
   type = string
+  validation {
+    condition     = length(var.image_tag) > 0
+    error_message = "Image tag must not be empty"
+  }
 }
 
 variable "image_pull_policy" {
@@ -34,14 +50,26 @@ variable "image_pull_secrets" {
 
 variable "coder_helm_chart_ver" {
   type = string
+  validation {
+    condition     = can(regex("^[0-9]+\\.[0-9]+\\.[0-9]+$", var.coder_helm_chart_ver))
+    error_message = "Helm chart version must be in semver format (e.g., 2.23.0)"
+  }
 }
 
 variable "primary_access_url" {
   type = string
+  validation {
+    condition     = can(regex("^https?://", var.primary_access_url))
+    error_message = "Primary access URL must start with http:// or https://"
+  }
 }
 
 variable "service_account_name" {
   type = string
+  validation {
+    condition     = length(var.service_account_name) > 0
+    error_message = "Service account name must not be empty"
+  }
 }
 
 variable "service_account_labels" {
@@ -65,8 +93,13 @@ variable "extern_prov_service_account_annotations" {
 }
 
 variable "replica_count" {
-  type    = number
-  default = 0
+  type = number
+  # Changed from 0 to 1 to ensure at least one Coder server pod runs by default
+  default = 1
+  validation {
+    condition     = var.replica_count >= 1
+    error_message = "Replica count must be at least 1 to ensure service availability"
+  }
 }
 
 variable "env_vars" {
@@ -150,18 +183,10 @@ module "kustomization" {
     include_crds = true
     version      = var.coder_helm_chart_ver
     values_file  = "./values.yaml"
-    secret_generator = [{
-      name      = ""
-      namespace = var.namespace
-      behavior  = "create"
-      files     = []
-      options = {
-        disable_name_suffix_hash = true
-      }
-    }]
+    # Removed empty secret_generator to prevent validation errors
+    secret_generator = []
   }]
   resources = [
-    "secrets",
     "namespace.yaml"
   ]
 }
@@ -212,7 +237,8 @@ locals {
       matchLabelKeys    = v.match_label_keys
     }
   ]
-  pod_anti_affinity_preferred_during_scheduling_ignored_during_execution = [
+  # Shortened name for readability because full Kubernetes field name is excessively long
+  pod_anti_affinity_preferred = [
     for v in var.pod_anti_affinity_preferred_during_scheduling_ignored_during_execution : {
       weight = v.weight
       podAffinityTerm = {
@@ -261,7 +287,7 @@ resource "local_file" "values" {
       topologySpreadConstraints = local.topology_spread_constraints
       affinity = {
         podAntiAffinity = {
-          preferredDuringSchedulingIgnoredDuringExecution = local.pod_anti_affinity_preferred_during_scheduling_ignored_during_execution
+          preferredDuringSchedulingIgnoredDuringExecution = local.pod_anti_affinity_preferred
         }
       }
     }

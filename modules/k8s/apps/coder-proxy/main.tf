@@ -8,14 +8,26 @@ terraform {
 
 variable "path" {
   type = string
+  validation {
+    condition     = length(var.path) > 0
+    error_message = "Path must not be empty"
+  }
 }
 
 variable "namespace" {
   type = string
+  validation {
+    condition     = length(var.namespace) > 0
+    error_message = "Namespace must not be empty"
+  }
 }
 
 variable "coder_helm_version" {
   type = string
+  validation {
+    condition     = can(regex("^[0-9]+\\.[0-9]+\\.[0-9]+$", var.coder_helm_version))
+    error_message = "Helm version must be in semver format (e.g., 2.23.0)"
+  }
 }
 
 variable "image_repo" {
@@ -128,14 +140,26 @@ variable "pod_anti_affinity_preferred_during_scheduling_ignored_during_execution
 
 variable "primary_access_url" {
   type = string
+  validation {
+    condition     = can(regex("^https?://", var.primary_access_url))
+    error_message = "Primary access URL must start with http:// or https://"
+  }
 }
 
 variable "proxy_access_url" {
   type = string
+  validation {
+    condition     = can(regex("^https?://", var.proxy_access_url))
+    error_message = "Proxy access URL must start with http:// or https://"
+  }
 }
 
 variable "proxy_wildcard_url" {
   type = string
+  validation {
+    condition     = can(regex("^https?://", var.proxy_wildcard_url))
+    error_message = "Proxy wildcard URL must start with http:// or https://"
+  }
 }
 
 variable "termination_grace_period_seconds" {
@@ -265,7 +289,8 @@ locals {
         labelSelector = {
           matchLabels = try(v.pod_affinity_term.label_selector.match_labels, {})
         }
-        topologyKey = try(v.pod_affinity_term.topology_key, {})
+        # Removed try() wrapper - topology_key is required string, not optional
+        topologyKey = v.pod_affinity_term.topology_key
       }
     }
   ]
@@ -325,4 +350,9 @@ resource "local_file" "values" {
       terminationGracePeriodSeconds = var.termination_grace_period_seconds
     }
   })
+
+  lifecycle {
+    # Recreate file on content changes to ensure consistency
+    create_before_destroy = true
+  }
 }

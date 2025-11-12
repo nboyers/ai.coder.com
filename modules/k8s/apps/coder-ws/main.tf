@@ -271,7 +271,8 @@ locals {
       matchLabelKeys    = v.match_label_keys
     }
   ]
-  pod_anti_affinity_preferred_during_scheduling_ignored_during_execution = [
+  # Shortened name for readability because full Kubernetes field name is excessively long
+  pod_anti_affinity_preferred = [
     for v in var.pod_anti_affinity_preferred_during_scheduling_ignored_during_execution : {
       weight = v.weight
       podAffinityTerm = {
@@ -320,7 +321,7 @@ resource "local_file" "values" {
       topologySpreadConstraints = local.topology_spread_constraints
       affinity = {
         podAntiAffinity = {
-          preferredDuringSchedulingIgnoredDuringExecution = local.pod_anti_affinity_preferred_during_scheduling_ignored_during_execution
+          preferredDuringSchedulingIgnoredDuringExecution = local.pod_anti_affinity_preferred
         }
       }
     }

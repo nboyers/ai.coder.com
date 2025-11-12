@@ -2,10 +2,18 @@ terraform {}
 
 variable "name" {
   type = string
+  validation {
+    condition     = length(var.name) > 0
+    error_message = "Name must not be empty"
+  }
 }
 
 variable "namespace" {
   type = string
+  validation {
+    condition     = length(var.namespace) > 0
+    error_message = "Namespace must not be empty"
+  }
 }
 
 variable "role_labels" {
@@ -40,10 +48,18 @@ variable "service_account_annotations" {
 
 variable "litellm_deployment_name" {
   type = string
+  validation {
+    condition     = length(var.litellm_deployment_name) > 0
+    error_message = "LiteLLM deployment name must not be empty"
+  }
 }
 
 variable "litellm_secret_key_name" {
   type = string
+  validation {
+    condition     = length(var.litellm_secret_key_name) > 0
+    error_message = "LiteLLM secret key name must not be empty"
+  }
 }
 
 module "role" {
@@ -82,18 +98,27 @@ module "rolebinding" {
   namespace   = var.namespace
   labels      = var.role_binding_labels
   annotations = var.role_binding_annotations
+  # Use var.name directly as modules don't expose name outputs, only manifests
   role_ref = {
     name = var.name
   }
   subjects = [{
-    name = var.name
+    # Added kind field for proper Kubernetes RBAC subject specification
+    kind      = "ServiceAccount"
+    name      = var.name
+    namespace = var.namespace
   }]
 }
 
-module "kustomization" {
-  source = "../../objects/cronjob"
+# Output manifests for validation and debugging
+output "role_manifest" {
+  value = module.role.manifest
 }
 
-module "cronjob" {
-  source = "../../objects/cronjob"
+output "serviceaccount_manifest" {
+  value = module.serviceaccount.manifest
+}
+
+output "rolebinding_manifest" {
+  value = module.rolebinding.manifest
 }

@@ -17,6 +17,11 @@ variable "path" {
 
 variable "namespace" {
   type = string
+  # Added validation because empty namespace causes Kubernetes resource errors
+  validation {
+    condition     = var.namespace != ""
+    error_message = "namespace must not be empty."
+  }
 }
 
 variable "patches" {
@@ -212,9 +217,10 @@ module "namespace" {
 }
 
 locals {
-  patches = [for v in var.patches : {
-    patch  = v.expected
-    target = v.target
+  # Renamed loop variables for clarity because single-letter names reduce maintainability
+  patches = [for patch in var.patches : {
+    patch  = patch.expected
+    target = patch.target
   }]
   config_maps = concat([{
     name       = replace(element(split("/", var.litellm_config.config_path), -1), "/[^a-zA-Z0-9-]/", "-")
@@ -222,21 +228,21 @@ locals {
     mount_path = "/app/${element(split("/", var.litellm_config.config_path), -1)}"
     sub_path   = element(split("/", var.litellm_config.config_path), -1)
     files      = [var.litellm_config.config_path]
-    }], [for v in var.litellm_config.custom_function_paths : {
-    name       = replace(element(split("/", v), -1), "/[^a-zA-Z0-9-]/", "-")
+    }], [for func_path in var.litellm_config.custom_function_paths : {
+    name       = replace(element(split("/", func_path), -1), "/[^a-zA-Z0-9-]/", "-")
     namespace  = var.namespace
-    mount_path = "/app/${element(split("/", v), -1)}"
-    sub_path   = element(split("/", v), -1)
-    files      = [v]
+    mount_path = "/app/${element(split("/", func_path), -1)}"
+    sub_path   = element(split("/", func_path), -1)
+    files      = [func_path]
   }])
-  secret_mounts = [for v in var.secret_mounts : {
-    name       = replace(v.name, "/[^a-zA-Z0-9-]/", "-")
+  secret_mounts = [for mount in var.secret_mounts : {
+    name       = replace(mount.name, "/[^a-zA-Z0-9-]/", "-")
     namespace  = var.namespace
-    behavior   = v.behavior
-    files      = v.files
-    read_only  = v.read_only
-    mount_path = v.mount_path
-    options    = v.options
+    behavior   = mount.behavior
+    files      = mount.files
+    read_only  = mount.read_only
+    mount_path = mount.mount_path
+    options    = mount.options
   }]
   secrets = concat([{
     name      = element(split("/", var.litellm_config.secret_path), -1)
@@ -277,6 +283,8 @@ module "serviceaccount" {
 }
 
 locals {
+  # Cache port_name to avoid repeated conditional evaluation
+  port_name = var.litellm_config.port_name == "" ? var.name : var.litellm_config.port_name
   env_secret = merge({
     LITELLM_MASTER_KEY = {
       name = element(split("/", var.litellm_config.secret_path), -1)
@@ -327,7 +335,7 @@ module "deployment" {
     env_secret = local.env_secret
     resources  = var.container_resources
     ports = [{
-      name           = var.litellm_config.port_name == "" ? var.name : var.litellm_config.port_name
+      name           = local.port_name
       protocol       = "TCP"
       container_port = var.litellm_config.port
     }]
@@ -360,7 +368,7 @@ module "service" {
     name        = "http"
     protocol    = "TCP"
     port        = var.ingress_http_target_port
-    target_port = var.litellm_config.port_name == "" ? var.name : var.litellm_config.port_name
+    target_port = local.port_name
   }]
   selector = var.service_selector
   type     = "NodePort"
