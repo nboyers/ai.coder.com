@@ -1,9 +1,9 @@
 # Pre-Workshop Validation Checklist
 
-**Workshop Date**: ********\_********  
-**Expected Participants**: ********\_********  
-**Validated By**: ********\_********  
-**Validation Date**: ********\_********
+**Workshop Date**: **\*\*\*\***\_**\*\*\*\***  
+**Expected Participants**: **\*\*\*\***\_**\*\*\*\***  
+**Validated By**: **\*\*\*\***\_**\*\*\*\***  
+**Validation Date**: **\*\*\*\***\_**\*\*\*\***
 
 ## Purpose
 
@@ -33,8 +33,8 @@ This checklist ensures all systems are operational and properly configured befor
 - [ ] **Verify auxiliary addon key rotation schedule**: Keys rotate every 4-5 hours
   - [ ] **Action Required**: Ensure rotation will NOT occur during workshop window
   - [ ] **Note**: Key rotation forces all workspaces to restart
-- [ ] **Result**: AWS credentials expire on: ********\_********
-- [ ] **Result**: GCP credentials expire on: ********\_********
+- [ ] **Result**: AWS credentials expire on: **\*\*\*\***\_**\*\*\*\***
+- [ ] **Result**: GCP credentials expire on: **\*\*\*\***\_**\*\*\*\***
 - [ ] **Action Required**: If <7 days, rotate keys using documented procedure
 
 ### GitHub OAuth
@@ -57,8 +57,8 @@ This checklist ensures all systems are operational and properly configured befor
   kubectl get pods -n coder -o jsonpath='{.items[*].spec.containers[*].image}' --context=us-east-2
   ```
 
-  - Image: ********\_********
-  - Tag/Digest: ********\_********
+  - Image: **\*\*\*\***\_**\*\*\*\***
+  - Tag/Digest: **\*\*\*\***\_**\*\*\*\***
 
 - [ ] **Oregon Proxy (us-west-2)** - Verify Coder Proxy image version:
 
@@ -66,8 +66,8 @@ This checklist ensures all systems are operational and properly configured befor
   kubectl get pods -n coder -o jsonpath='{.items[*].spec.containers[*].image}' --context=us-west-2
   ```
 
-  - Image: ********\_********
-  - Tag/Digest: ********\_********
+  - Image: **\*\*\*\***\_**\*\*\*\***
+  - Tag/Digest: **\*\*\*\***\_**\*\*\*\***
 
 - [ ] **London Proxy (eu-west-2)** - Verify Coder Proxy image version:
 
@@ -75,8 +75,8 @@ This checklist ensures all systems are operational and properly configured befor
   kubectl get pods -n coder -o jsonpath='{.items[*].spec.containers[*].image}' --context=eu-west-2
   ```
 
-  - Image: ********\_********
-  - Tag/Digest: ********\_********
+  - Image: **\*\*\*\***\_**\*\*\*\***
+  - Tag/Digest: **\*\*\*\***\_**\*\*\*\***
 
 - [ ] **Verify private ECR mirror** is up-to-date with latest `ghcr.io/coder/coder-preview`:
 
@@ -88,8 +88,8 @@ This checklist ensures all systems are operational and properly configured befor
   aws ecr describe-images --repository-name coder-preview --region us-east-2 --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageDigest'
   ```
 
-  - GHCR Digest: ********\_********
-  - ECR Digest: ********\_********
+  - GHCR Digest: **\*\*\*\***\_**\*\*\*\***
+  - ECR Digest: **\*\*\*\***\_**\*\*\*\***
 
 - [ ] **Confirm all clusters use identical images and digests**
 - [ ] **Action Required**: If images differ, see Issue #2 for remediation
@@ -114,7 +114,7 @@ This checklist ensures all systems are operational and properly configured befor
   curl -I https://test-workspace.oregon-proxy.ai.coder.com
   ```
 
-  - Result: ********\_********
+  - Result: **\*\*\*\***\_**\*\*\*\***
 
 - [ ] **Test subdomain routing from London proxy**:
 
@@ -124,16 +124,17 @@ This checklist ensures all systems are operational and properly configured befor
   curl -I https://test-workspace.emea-proxy.ai.coder.com
   ```
 
-  - Result: ********\_********
+  - Result: **\*\*\*\***\_**\*\*\*\***
 
 - [ ] **Test subdomain routing from control plane**:
+
   ```bash
   curl -I https://ai.coder.com/healthz
   # Test wildcard subdomain
   curl -I https://test-workspace.ai.coder.com
   ```
 
-  - Result: ********\_********
+  - Result: **\*\*\*\***\_**\*\*\*\***
 
 ---
 
@@ -155,17 +156,17 @@ This checklist ensures all systems are operational and properly configured befor
   ```
 
   **us-east-2 Nodes**:
-  - Node 1: ********\_********% used
-  - Node 2: ********\_********% used
-  - Node N: ********\_********% used
+  - Node 1: **\*\*\*\***\_**\*\*\*\***% used
+  - Node 2: **\*\*\*\***\_**\*\*\*\***% used
+  - Node N: **\*\*\*\***\_**\*\*\*\***% used
 
   **us-west-2 Nodes**:
-  - Node 1: ********\_********% used
-  - Node 2: ********\_********% used
+  - Node 1: **\*\*\*\***\_**\*\*\*\***% used
+  - Node 2: **\*\*\*\***\_**\*\*\*\***% used
 
   **eu-west-2 Nodes**:
-  - Node 1: ********\_********% used
-  - Node 2: ********\_********% used
+  - Node 1: **\*\*\*\***\_**\*\*\*\***% used
+  - Node 2: **\*\*\*\***\_**\*\*\*\***% used
 
 - [ ] **All nodes <60% storage utilization**
 - [ ] **Action Required**: If any node >60%, add capacity or rebalance workloads
@@ -204,17 +205,18 @@ This checklist ensures all systems are operational and properly configured befor
   kubectl get deployment -n coder -l app=coder-provisioner -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.replicas}{"\n"}{end}'
   ```
 
-  - Default org provisioners: ****\_**** replicas
-  - Experimental org provisioners: ****\_**** replicas
-  - Demo org provisioners: ****\_**** replicas
+  - Default org provisioners: \***\*\_\*\*** replicas
+  - Experimental org provisioners: \***\*\_\*\*** replicas
+  - Demo org provisioners: \***\*\_\*\*** replicas
 
 - [ ] **Scale provisioners if needed** for workshop:
+
   ```bash
   # Example: Scale default org provisioners to 10 replicas
   kubectl scale deployment coder-provisioner-default -n coder --replicas=10
   ```
 
-  - [ ] Scaled to: ****\_**** replicas for workshop
+  - [ ] Scaled to: \***\*\_\*\*** replicas for workshop
 
 ### LiteLLM Capacity
 
@@ -228,7 +230,7 @@ This checklist ensures all systems are operational and properly configured befor
   kubectl get pods -n litellm -l app=litellm
   ```
 
-  - Current replicas: ****\_****
+  - Current replicas: \***\*\_\*\***
   - All pods healthy: ✅ / ❌
 
 - [ ] **If expecting >20 users, consider scaling LiteLLM**:
@@ -241,12 +243,12 @@ This checklist ensures all systems are operational and properly configured befor
 - [ ] **Verify workspace resource limits** are configured:
   - CPU limit per workspace: 2-4 vCPU (template configurable)
   - Memory limit per workspace: 4-8 GB (template configurable)
-  - Storage limit per workspace: ********\_********
+  - Storage limit per workspace: **\*\*\*\***\_**\*\*\*\***
 
 - [ ] **Calculate total capacity**:
-  - Expected concurrent workspaces: ********\_********
-  - Available capacity for concurrent workspaces: ********\_********
-  - Headroom percentage: ********\_********
+  - Expected concurrent workspaces: **\*\*\*\***\_**\*\*\*\***
+  - Available capacity for concurrent workspaces: **\*\*\*\***\_**\*\*\*\***
+  - Headroom percentage: **\*\*\*\***\_**\*\*\*\***
 
 - [ ] **Headroom >30% for expected concurrent users**
 
@@ -263,9 +265,9 @@ This checklist ensures all systems are operational and properly configured befor
 - Real World App w/ Claude (2-4 vCPU, 4-8 GB)
 
 - [ ] **Create test workspace** using one of the available templates
-  - Template used: ********\_********
+  - Template used: **\*\*\*\***\_**\*\*\*\***
   - Workspace created successfully: ✅ / ❌
-  - Time to ready: ********\_********
+  - Time to ready: **\*\*\*\***\_**\*\*\*\***
   - Image pulled from ECR successfully: ✅ / ❌
 
 - [ ] **Execute workload in test workspace**:
@@ -283,9 +285,9 @@ This checklist ensures all systems are operational and properly configured befor
 ### Oregon Proxy Cluster (us-west-2)
 
 - [ ] **Create test workspace** via Oregon proxy
-  - Template used: ********\_********
+  - Template used: **\*\*\*\***\_**\*\*\*\***
   - Workspace created successfully: ✅ / ❌
-  - Time to ready: ********\_********
+  - Time to ready: **\*\*\*\***\_**\*\*\*\***
   - Routed through oregon-proxy.ai.coder.com: ✅ / ❌
 
 - [ ] **Execute workload in test workspace**
@@ -300,9 +302,9 @@ This checklist ensures all systems are operational and properly configured befor
 ### London Proxy Cluster (eu-west-2)
 
 - [ ] **Create test workspace** via London proxy
-  - Template used: ********\_********
+  - Template used: **\*\*\*\***\_**\*\*\*\***
   - Workspace created successfully: ✅ / ❌
-  - Time to ready: ********\_********
+  - Time to ready: **\*\*\*\***\_**\*\*\*\***
   - Routed through emea-proxy.ai.coder.com: ✅ / ❌
 
 - [ ] **Execute workload in test workspace**
@@ -378,15 +380,15 @@ This checklist ensures all systems are operational and properly configured befor
 
 **If NO**:
 
-- Document blockers: ********\_********
-- Escalate to: ********\_********
+- Document blockers: **\*\*\*\***\_**\*\*\*\***
+- Escalate to: **\*\*\*\***\_**\*\*\*\***
 - Decision: Proceed / Postpone
 
 **If YES**:
 
 - Workshop is **GO** ✅
-- Checklist completion time: ********\_********
-- Notes: ********\_********
+- Checklist completion time: **\*\*\*\***\_**\*\*\*\***
+- Notes: **\*\*\*\***\_**\*\*\*\***
 
 ---
 
@@ -399,6 +401,6 @@ This checklist ensures all systems are operational and properly configured befor
 
 ---
 
-**Completed By**: ********\_********  
-**Sign-off**: ********\_********  
-**Date**: ********\_********
+**Completed By**: **\*\*\*\***\_**\*\*\*\***  
+**Sign-off**: **\*\*\*\***\_**\*\*\*\***  
+**Date**: **\*\*\*\***\_**\*\*\*\***

@@ -413,9 +413,9 @@ Track these metrics month-over-month:
 
 ## Approvals
 
-**Infrastructure Team Lead**: ********\_********  
-**Product Team Lead**: ********\_********  
-**Date**: ********\_********
+**Infrastructure Team Lead**: **\*\*\*\***\_**\*\*\*\***  
+**Product Team Lead**: **\*\*\*\***\_**\*\*\*\***  
+**Date**: **\*\*\*\***\_**\*\*\*\***
 
 ---
 
