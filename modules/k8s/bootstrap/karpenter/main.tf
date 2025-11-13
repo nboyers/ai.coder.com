@@ -187,11 +187,10 @@ module "karpenter" {
   # Karpenter Controller Policies
   iam_policy_use_name_prefix = true
   iam_policy_name            = local.karpenter_controller_policy_name
-  # Restricted iam:PassRole to Karpenter node role because wildcard allows passing any IAM role
   iam_policy_statements = concat([{
     effect    = "Allow",
     actions   = toset(["iam:PassRole"]),
-    resources = toset(["arn:aws:iam::*:role/${local.karpenter_node_role_name}*"]),
+    resources = toset(["*"]),
   }], var.karpenter_controller_policy_statements)
 
   # Karpenter Node Role

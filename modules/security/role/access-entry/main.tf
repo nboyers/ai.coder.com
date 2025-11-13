@@ -114,8 +114,8 @@ resource "aws_eks_access_policy_association" "attach" {
     type = "cluster"
   }
 
-  # Added depends_on with conditional check because policy association requires access entry to exist
-  depends_on = var.cluster_create_access_entry ? [aws_eks_access_entry.this[0]] : []
+  # Policy association requires access entry to exist; for_each already handles conditional creation
+  depends_on = [aws_eks_access_entry.this[0]]
 }
 
 output "role_name" {

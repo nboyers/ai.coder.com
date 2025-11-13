@@ -110,8 +110,9 @@ module "oidc-role" {
   policy_arns = {
     "CertManagerRoute53" = module.policy.policy_arn
   }
-  # Removed overly broad cluster admin policy for least privilege
-  cluster_policy_arns = {}
+  cluster_policy_arns = {
+    "AmazonEKSClusterAdminPolicy" = "arn:aws:iam::aws:policy/AmazonEKSClusterAdminPolicy"
+  }
   # Restricted to specific service account instead of wildcard for least privilege
   oidc_principals = {
     "${var.cluster_oidc_provider_arn}" = ["system:serviceaccount:${var.namespace}:cert-manager-acme-dns01-route53"]

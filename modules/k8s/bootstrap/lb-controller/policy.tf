@@ -121,12 +121,6 @@ data "aws_iam_policy_document" "this" {
       "ec2:DeleteSecurityGroup"
     ]
     resources = ["*"]
-
-    condition {
-      test     = "Null"
-      variable = "aws:ResourceTag/elbv2.k8s.aws/cluster"
-      values   = ["false"]
-    }
   }
 
   statement {
