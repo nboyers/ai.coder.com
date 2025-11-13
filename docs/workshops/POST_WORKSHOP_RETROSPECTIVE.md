@@ -1,9 +1,9 @@
 # Post-Workshop Retrospective Template
 
-**Workshop Date**: ********\_********  
-**Participants**: ********\_********  
-**Retrospective Date**: ********\_********  
-**Attendees**: ********\_********
+**Workshop Date**: **\*\*\*\***\_**\*\*\*\***  
+**Participants**: **\*\*\*\***\_**\*\*\*\***  
+**Retrospective Date**: **\*\*\*\***\_**\*\*\*\***  
+**Attendees**: **\*\*\*\***\_**\*\*\*\***
 
 ---
 
@@ -11,18 +11,18 @@
 
 ### Metrics
 
-**Registration**: ****\_**** participants  
-**Actual Attendance**: ****\_**** participants  
-**Completion Rate**: ****\_****%  
-**Duration**: ****\_**** minutes
+**Registration**: \***\*\_\*\*** participants  
+**Actual Attendance**: \***\*\_\*\*** participants  
+**Completion Rate**: \***\*\_\*\***%  
+**Duration**: \***\*\_\*\*** minutes
 
 ### Concurrent Load
 
-**Peak Concurrent Workspaces**: ****\_****  
-**Average Concurrent Workspaces**: ****\_****  
-**Peak Storage Utilization**: ****\_****%  
-**Peak CPU Utilization**: ****\_****%  
-**Peak Memory Utilization**: ****\_****%
+**Peak Concurrent Workspaces**: \***\*\_\*\***  
+**Average Concurrent Workspaces**: \***\*\_\*\***  
+**Peak Storage Utilization**: \***\*\_\*\***%  
+**Peak CPU Utilization**: \***\*\_\*\***%  
+**Peak Memory Utilization**: \***\*\_\*\***%
 
 ---
 
@@ -30,7 +30,7 @@
 
 ### Incidents
 
-**Total Incidents**: ****\_****
+**Total Incidents**: \***\*\_\*\***
 
 | Severity | Count | Description | Impact | Resolution Time |
 | -------- | ----- | ----------- | ------ | --------------- |
@@ -200,24 +200,24 @@
 
 ## Next Workshop Planning
 
-**Proposed Date**: ********\_********  
-**Target Participants**: ********\_********  
-**Focus Areas**: ********\_********  
-**Key Changes from This Workshop**: ********\_********
+**Proposed Date**: **\*\*\*\***\_**\*\*\*\***  
+**Target Participants**: **\*\*\*\***\_**\*\*\*\***  
+**Focus Areas**: **\*\*\*\***\_**\*\*\*\***  
+**Key Changes from This Workshop**: **\*\*\*\***\_**\*\*\*\***
 
 ---
 
 ## Approvals
 
-**Infrastructure Team Lead**: ********\_********  
-**Product Team Lead**: ********\_********  
-**Date**: ********\_********
+**Infrastructure Team Lead**: **\*\*\*\***\_**\*\*\*\***  
+**Product Team Lead**: **\*\*\*\***\_**\*\*\*\***  
+**Date**: **\*\*\*\***\_**\*\*\*\***
 
 ---
 
 ## Attachments
 
-- Link to metrics dashboard export: ********\_********
-- Link to participant feedback survey results: ********\_********
-- Link to incident reports: ********\_********
-- Link to GitHub issues created: ********\_********
+- Link to metrics dashboard export: **\*\*\*\***\_**\*\*\*\***
+- Link to participant feedback survey results: **\*\*\*\***\_**\*\*\*\***
+- Link to incident reports: **\*\*\*\***\_**\*\*\*\***
+- Link to GitHub issues created: **\*\*\*\***\_**\*\*\*\***

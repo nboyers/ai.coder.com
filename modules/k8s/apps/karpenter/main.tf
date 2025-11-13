@@ -1,7 +1,8 @@
 terraform {
   required_providers {
     local = {
-      source = "hashicorp/local"
+      source  = "hashicorp/local"
+      version = "~> 2.0"
     }
   }
 }
@@ -293,4 +294,44 @@ resource "local_file" "values" {
     replicas     = var.karpenter_replicas
     dnsPolicy    = "ClusterFirst"
   })
+}
+
+output "namespace" {
+  description = "The Kubernetes namespace where Karpenter is deployed"
+  value       = var.namespace
+}
+
+output "cluster_name" {
+  description = "The EKS cluster name that Karpenter manages"
+  value       = var.cluster_name
+}
+
+output "helm_version" {
+  description = "The version of the Karpenter Helm chart deployed"
+  value       = var.karpenter_helm_version
+}
+
+output "replica_count" {
+  description = "The number of Karpenter controller replicas configured"
+  value       = var.karpenter_replicas
+}
+
+output "ec2nodeclass_names" {
+  description = "Names of the EC2NodeClass resources created"
+  value       = [for config in var.ec2nodeclass_configs : config.name]
+}
+
+output "nodepool_names" {
+  description = "Names of the NodePool resources created"
+  value       = [for config in var.nodepool_configs : config.name]
+}
+
+output "queue_name" {
+  description = "The SQS queue name used for Karpenter interruption handling"
+  value       = var.karpenter_queue_name
+}
+
+output "manifest_path" {
+  description = "The directory path where Kubernetes manifests are generated"
+  value       = var.path
 }
