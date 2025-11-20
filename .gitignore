@@ -3,6 +3,8 @@
 .terraform.lock.hcl
 terraform.tfstate*
 tf.plan
+tfplan
+*.tfplan
 
 # Backend configuration (contains sensitive IDs)
 backend.tf

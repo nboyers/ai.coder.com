@@ -81,6 +81,47 @@ Instead of creating backend.tf, you can use a config file:
 - **Compliance**: Prevents accidental exposure of infrastructure details
 - **Best Practice**: Follows AWS security recommendations
 
+## Secret Scanning Protection
+
+This repository has automated secret scanning to prevent accidental exposure of credentials:
+
+### GitHub Actions (Automated)
+- **Gitleaks** - Scans every PR and push for secrets
+- **TruffleHog** - Additional verification layer
+- **Custom Pattern Matching** - Catches common secret patterns
+- **Auto-Revert** - Automatically reverts commits to main with secrets
+
+### Pre-commit Hooks (Local)
+Catch secrets before they reach GitHub:
+
+```bash
+# Install pre-commit
+pip install pre-commit
+
+# Install git hooks
+pre-commit install
+
+# Test on all files
+pre-commit run --all-files
+```
+
+### What Gets Detected
+- AWS Access Keys (AKIA...)
+- API Keys and Tokens
+- Private Keys (RSA, SSH, etc.)
+- Database connection strings with passwords
+- GitHub Personal Access Tokens
+- Stripe API keys
+- High-entropy strings (likely secrets)
+
+### If Secrets Are Detected
+1. **PR is blocked** - Cannot merge until secrets are removed
+2. **Automatic notification** - PR comment explains the issue
+3. **Required actions**:
+   - Remove the secret from code
+   - Use GitHub Secrets or environment variables
+   - Rotate/invalidate the exposed credential
+
 ## Migrating Existing State
 
 If you have local state to migrate:
