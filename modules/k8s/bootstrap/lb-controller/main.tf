@@ -7,7 +7,7 @@ terraform {
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "2.17.0"
+      version = "3.1.1"
     }
     kubernetes = {
       source = "hashicorp/kubernetes"
@@ -138,12 +138,12 @@ resource "helm_release" "lb-controller" {
   chart            = "aws-load-balancer-controller"
   repository       = "https://aws.github.io/eks-charts"
   create_namespace = true
-  # Removed invalid upgrade_install attribute - Terraform handles upgrades automatically
-  skip_crds     = false
-  wait          = true
-  wait_for_jobs = true
-  version       = var.chart_version
-  timeout       = 120 # in seconds
+  upgrade_install  = true
+  skip_crds        = false
+  wait             = true
+  wait_for_jobs    = true
+  version          = var.chart_version
+  timeout          = 120 # in seconds
 
   values = [yamlencode({
     clusterName = var.cluster_name

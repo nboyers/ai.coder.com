@@ -5,7 +5,7 @@ terraform {
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "2.17.0"
+      version = "3.1.1"
     }
     kubernetes = {
       source = "hashicorp/kubernetes"
@@ -141,11 +141,6 @@ variable "kubernetes_create_ssl_secret" {
   default = true
 }
 
-variable "cloudflare_api_token" {
-  type      = string
-  sensitive = true
-}
-
 variable "oidc_sign_in_text" {
   type = string
 }
@@ -176,7 +171,7 @@ data "aws_eks_cluster_auth" "this" {
 }
 
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = data.aws_eks_cluster.this.endpoint
     cluster_ca_certificate = base64decode(data.aws_eks_cluster.this.certificate_authority[0].data)
     token                  = data.aws_eks_cluster_auth.this.token
@@ -198,6 +193,13 @@ provider "acme" {
   server_url = var.acme_server_url
 }
 
+# Fetch ACM certificate dynamically by domain to avoid hardcoding sensitive ARNs
+data "aws_acm_certificate" "coder" {
+  domain      = trimsuffix(trimprefix(var.coder_access_url, "https://"), "/")
+  statuses    = ["ISSUED"]
+  most_recent = true
+}
+
 module "coder-server" {
   source = "../../../../../modules/k8s/bootstrap/coder-server"
 
@@ -208,13 +210,12 @@ module "coder-server" {
   namespace                       = "coder"
   acme_registration_email         = var.acme_registration_email
   acme_days_until_renewal         = 90
-  replica_count                   = 2
+  replica_count                   = 1 # HA requires Enterprise license
   helm_version                    = var.addon_version
   image_repo                      = var.image_repo
   image_tag                       = var.image_tag
   primary_access_url              = var.coder_access_url
   wildcard_access_url             = var.coder_wildcard_access_url
-  cloudflare_api_token            = var.cloudflare_api_token
   coder_experiments               = var.coder_experiments
   coder_builtin_provisioner_count = var.coder_builtin_provisioner_count
   coder_github_allowed_orgs       = var.coder_github_allowed_orgs
@@ -237,10 +238,25 @@ module "coder-server" {
   github_external_auth_secret_client_id     = var.coder_github_external_auth_secret_client_id
   github_external_auth_secret_client_secret = var.coder_github_external_auth_secret_client_secret
   tags                                      = {}
+  env_vars = {
+    # Disable redirect since NLB terminates TLS and forwards plain HTTP to backend
+    # Without this, Coder sees HTTP and redirects to HTTPS, causing infinite redirect loop
+    CODER_REDIRECT_TO_ACCESS_URL = "false"
+    # Disable TLS on Coder itself since NLB terminates TLS
+    CODER_TLS_ENABLE = "false"
+    # Mark auth cookies as secure since users access via HTTPS
+    CODER_SECURE_AUTH_COOKIE = "true"
+    # Enable DERP server for multi-region replica communication
+    CODER_DERP_SERVER_ENABLE = "true"
+  }
   service_annotations = {
-    "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type" = "instance"
-    "service.beta.kubernetes.io/aws-load-balancer-scheme"          = "internet-facing"
-    "service.beta.kubernetes.io/aws-load-balancer-attributes"      = "deletion_protection.enabled=true"
+    "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type"  = "instance"
+    "service.beta.kubernetes.io/aws-load-balancer-scheme"           = "internet-facing"
+    "service.beta.kubernetes.io/aws-load-balancer-attributes"       = "deletion_protection.enabled=false,load_balancing.cross_zone.enabled=true"
+    "service.beta.kubernetes.io/aws-load-balancer-ssl-cert"         = data.aws_acm_certificate.coder.arn
+    "service.beta.kubernetes.io/aws-load-balancer-ssl-ports"        = "443"
+    "service.beta.kubernetes.io/aws-load-balancer-backend-protocol" = "tcp"
+    # Subnets will be auto-detected by Load Balancer Controller using kubernetes.io/role/elb=1 tag
   }
   node_selector = {
     "node.coder.io/managed-by" = "karpenter"
@@ -279,4 +295,24 @@ module "coder-server" {
       topology_key = "kubernetes.io/hostname"
     }
   }]
+}
+
+# Fix service HTTPS port to forward to HTTP backend (port 8080)
+# since Coder has TLS disabled and only listens on HTTP
+resource "null_resource" "patch_coder_service" {
+  depends_on = [module.coder-server]
+
+  triggers = {
+    # Re-run patch whenever Coder configuration changes
+    always_run = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      sleep 10
+      kubectl patch svc coder -n coder --type='json' \
+        -p='[{"op": "replace", "path": "/spec/ports/1/targetPort", "value": "http"}]' \
+        2>/dev/null || true
+    EOT
+  }
 }

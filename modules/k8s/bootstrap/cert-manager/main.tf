@@ -7,7 +7,7 @@ terraform {
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "2.17.0"
+      version = "3.1.1"
     }
     kubernetes = {
       source = "hashicorp/kubernetes"
@@ -132,12 +132,12 @@ resource "helm_release" "cert-manager" {
   chart            = "cert-manager"
   repository       = "oci://quay.io/jetstack/charts"
   create_namespace = false
-  # Removed invalid upgrade_install attribute for proper error handling
-  skip_crds     = false
-  wait          = true
-  wait_for_jobs = true
-  version       = var.helm_version
-  timeout       = var.helm_timeout
+  upgrade_install  = true
+  skip_crds        = false
+  wait             = true
+  wait_for_jobs    = true
+  version          = var.helm_version
+  timeout          = var.helm_timeout
 
   values = [yamlencode({
     crds = {

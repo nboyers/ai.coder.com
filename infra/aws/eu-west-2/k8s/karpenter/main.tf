@@ -5,7 +5,7 @@ terraform {
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "2.17.0"
+      version = "3.1.1"
     }
     kubernetes = {
       source = "hashicorp/kubernetes"
@@ -54,7 +54,7 @@ data "aws_eks_cluster_auth" "this" {
 }
 
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = data.aws_eks_cluster.this.endpoint
     cluster_ca_certificate = base64decode(data.aws_eks_cluster.this.certificate_authority[0].data)
     token                  = data.aws_eks_cluster_auth.this.token
@@ -181,7 +181,7 @@ module "karpenter-addon" {
     block_device_mappings = [{
       device_name = "/dev/xvda"
       ebs = {
-        volume_size = "1400Gi"
+        volume_size = "500Gi"
         volume_type = "gp3"
       }
       }, {

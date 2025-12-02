@@ -5,7 +5,7 @@ terraform {
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "2.17.0"
+      version = "3.1.1"
     }
     kubernetes = {
       source = "hashicorp/kubernetes"
@@ -114,8 +114,8 @@ variable "image_pull_secrets" {
 
 variable "replica_count" {
   type = number
-  # Changed from 0 to 1 because zero replicas results in no running server pods
-  default = 1
+  # reverted back to 0 as this is a demo deployment by default
+  default = 0
 }
 
 variable "env_vars" {
@@ -577,6 +577,7 @@ resource "helm_release" "coder-server" {
   chart            = "coder"
   repository       = "https://helm.coder.com/v2"
   create_namespace = false
+  upgrade_install  = true
   skip_crds        = false
   wait             = true
   wait_for_jobs    = true

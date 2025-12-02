@@ -5,7 +5,7 @@ terraform {
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "2.17.0"
+      version = "3.1.1"
     }
     kubernetes = {
       source = "hashicorp/kubernetes"
@@ -101,11 +101,6 @@ variable "kubernetes_create_ssl_secret" {
   default = true
 }
 
-variable "cloudflare_api_token" {
-  type      = string
-  sensitive = true
-}
-
 provider "aws" {
   region  = var.cluster_region
   profile = var.cluster_profile
@@ -120,7 +115,7 @@ data "aws_eks_cluster_auth" "this" {
 }
 
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = data.aws_eks_cluster.this.endpoint
     cluster_ca_certificate = base64decode(data.aws_eks_cluster.this.certificate_authority[0].data)
     token                  = data.aws_eks_cluster_auth.this.token
@@ -161,7 +156,6 @@ module "coder-proxy" {
   proxy_token_config = {
     name = "coder-proxy"
   }
-  cloudflare_api_token = var.cloudflare_api_token
   ssl_cert_config = {
     name          = var.kubernetes_ssl_secret_name
     create_secret = var.kubernetes_create_ssl_secret
@@ -208,9 +202,4 @@ module "coder-proxy" {
       topology_key = "kubernetes.io/hostname"
     }
   }]
-}
-
-import {
-  id = "coder-proxy"
-  to = module.coder-proxy.kubernetes_namespace.this
 }

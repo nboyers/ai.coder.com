@@ -5,7 +5,7 @@ terraform {
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "2.17.0"
+      version = "3.1.1"
     }
     kubernetes = {
       source = "hashicorp/kubernetes"
@@ -53,18 +53,27 @@ data "aws_eks_cluster_auth" "this" {
   name = var.cluster_name
 }
 
-provider "helm" {
-  kubernetes {
-    host                   = data.aws_eks_cluster.this.endpoint
-    cluster_ca_certificate = base64decode(data.aws_eks_cluster.this.certificate_authority[0].data)
-    token                  = data.aws_eks_cluster_auth.this.token
-  }
-}
-
 provider "kubernetes" {
   host                   = data.aws_eks_cluster.this.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.this.certificate_authority[0].data)
   token                  = data.aws_eks_cluster_auth.this.token
+}
+
+provider "helm" {
+  kubernetes = {
+    host                   = data.aws_eks_cluster.this.endpoint
+    cluster_ca_certificate = base64decode(data.aws_eks_cluster.this.certificate_authority[0].data)
+    exec = {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "aws"
+      args = [
+        "eks",
+        "get-token",
+        "--cluster-name", var.cluster_name,
+        "--region", var.cluster_region
+      ]
+    }
+  }
 }
 
 locals {
@@ -153,7 +162,15 @@ locals {
     node_requirements = concat(local.global_node_reqs, [{
       key      = "node.kubernetes.io/instance-type"
       operator = "In"
-      values   = ["c6a.32xlarge", "c5a.32xlarge"]
+      values = [
+        # Small demos (5-10 users) - Most cost-effective
+        "c6a.4xlarge", "c5a.4xlarge", # 16 vCPU / 32 GB  - ~$0.18/hr spot
+        "c6a.8xlarge", "c5a.8xlarge", # 32 vCPU / 64 GB  - ~$0.37/hr spot
+        # Medium demos (10-20 users)
+        "c6a.16xlarge", "c5a.16xlarge", # 64 vCPU / 128 GB - ~$0.74/hr spot
+        # Large demos (20-40 users)
+        "c6a.32xlarge", "c5a.32xlarge" # 128 vCPU / 256 GB - ~$1.47/hr spot
+      ]
     }])
     node_class_ref_name          = "coder-ws-class"
     disruption_consolidate_after = "30m"
@@ -183,7 +200,7 @@ module "karpenter-addon" {
     block_device_mappings = [{
       device_name = "/dev/xvda"
       ebs = {
-        volume_size = "1400Gi"
+        volume_size = "500Gi" // Decreased from 1400Gi to save costs; felt overkill for coder-server nodes
         volume_type = "gp3"
       }
       }, {
@@ -198,6 +215,7 @@ module "karpenter-addon" {
     subnet_selector_tags = local.provisioner_subnet_tags
     sg_selector_tags     = local.provisioner_sg_tags
   }]
+  nodepool_configs = local.nodepool_configs
 }
 
 # import {

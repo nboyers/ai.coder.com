@@ -7,7 +7,7 @@ terraform {
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "2.17.0"
+      version = "3.1.1"
     }
     kubernetes = {
       source = "hashicorp/kubernetes"
@@ -346,6 +346,7 @@ resource "helm_release" "coder-proxy" {
   chart            = "coder"
   repository       = "https://helm.coder.com/v2"
   create_namespace = false
+  upgrade_install  = true
   skip_crds        = false
   wait             = true
   wait_for_jobs    = true
