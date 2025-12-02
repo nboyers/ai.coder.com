@@ -17,27 +17,27 @@ This document provides a comprehensive visual representation of the **coderdemo.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                              INTERNET / USERS                                │
+│                              INTERNET / USERS                               │
 └─────────────────────────────────────────────────────────────────────────────┘
                                       │
                                       │ HTTPS
                                       ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                         AWS ROUTE 53 (coderdemo.io)                          │
-│                                                                               │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │ LATENCY-BASED ROUTING (Automatic)                                    │   │
-│  │  • coderdemo.io          → Nearest region (health check monitored)   │   │
-│  │  • *.coderdemo.io        → Workspace apps (latency-routed)           │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                               │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │ REGION-SPECIFIC ROUTING (Manual Override)                            │   │
-│  │  • us-east-2.coderdemo.io      → Force Ohio region                   │   │
-│  │  • us-west-2.coderdemo.io      → Force Oregon region                 │   │
-│  │  • *.us-east-2.coderdemo.io    → Ohio workspace apps                 │   │
-│  │  • *.us-west-2.coderdemo.io    → Oregon workspace apps               │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
+│                         AWS ROUTE 53 (coderdemo.io)                         │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ LATENCY-BASED ROUTING (Automatic)                                   │    │
+│  │  • coderdemo.io          → Nearest region (health check monitored)  │    │
+│  │  • *.coderdemo.io        → Workspace apps (latency-routed)          │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ REGION-SPECIFIC ROUTING (Manual Override)                           │    │
+│  │  • us-east-2.coderdemo.io      → Force Ohio region                  │    │
+│  │  • us-west-2.coderdemo.io      → Force Oregon region                │    │
+│  │  • *.us-east-2.coderdemo.io    → Ohio workspace apps                │    │
+│  │  • *.us-west-2.coderdemo.io    → Oregon workspace apps              │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────────────────┘
               │                                              │
               │                                              │
@@ -46,128 +46,128 @@ This document provides a comprehensive visual representation of the **coderdemo.
     │   PRIMARY REGION   │                       │  SECONDARY REGION  │
     └────────────────────┘                       └────────────────────┘
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          US-EAST-2 REGION (PRIMARY)                          │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                               │
-│  ┌────────────────────────────────────────────────────────────────────┐    │
-│  │                    NETWORK LOAD BALANCER (NLB)                      │    │
-│  │  • TLS Termination (ACM Certificate)                                │    │
-│  │  • Static IP Addresses (per AZ)                                     │    │
-│  │  • Layer 4 (TCP) - Low latency                                      │    │
-│  │  • Source IP Preservation                                           │    │
-│  │  • HTTPS:443 → HTTP:8080 (backend)                                  │    │
-│  └────────────────────────────────────────────────────────────────────┘    │
-│                                  │                                           │
-│  ┌───────────────────────────────▼──────────────────────────────────┐      │
-│  │                         VPC (10.0.0.0/16)                          │      │
-│  │                                                                     │      │
-│  │  ┌─────────────────────────────────────────────────────────┐     │      │
-│  │  │                  PUBLIC SUBNETS (system0, system1)       │     │      │
-│  │  │  • Internet Gateway (IGW)                                │     │      │
-│  │  │  • NAT Gateway (fck-nat - cost optimized)                │     │      │
-│  │  │  • Network Load Balancers                                │     │      │
-│  │  │  • Multi-AZ (us-east-2a, us-east-2b)                     │     │      │
-│  │  └─────────────────────────────────────────────────────────┘     │      │
-│  │                              │                                     │      │
-│  │  ┌───────────────────────────▼─────────────────────────────┐     │      │
-│  │  │                  PRIVATE SUBNETS                          │     │      │
-│  │  │                                                            │     │      │
-│  │  │  ┌──────────────────────────────────────────────────┐   │     │      │
-│  │  │  │ SYSTEM SUBNETS (system0, system1)                │   │     │      │
-│  │  │  │  • EKS Control Plane                              │   │     │      │
-│  │  │  │  • EKS Managed Node Groups                        │   │     │      │
-│  │  │  │  • Graviton ARM instances (t4g.xlarge)            │   │     │      │
-│  │  │  │  • ON_DEMAND capacity (stable)                    │   │     │      │
-│  │  │  └──────────────────────────────────────────────────┘   │     │      │
-│  │  │                                                            │     │      │
-│  │  │  ┌──────────────────────────────────────────────────┐   │     │      │
-│  │  │  │ PROVISIONER SUBNET                                │   │     │      │
-│  │  │  │  • Coder External Provisioner pods                │   │     │      │
-│  │  │  │  • Workspace orchestration                        │   │     │      │
-│  │  │  └──────────────────────────────────────────────────┘   │     │      │
-│  │  │                                                            │     │      │
-│  │  │  ┌──────────────────────────────────────────────────┐   │     │      │
-│  │  │  │ WORKSPACE SUBNET (ws-all)                         │   │     │      │
-│  │  │  │  • Coder Workspace pods                           │   │     │      │
-│  │  │  │  • Karpenter auto-scaled nodes                    │   │     │      │
-│  │  │  │  • User development environments                  │   │     │      │
-│  │  │  └──────────────────────────────────────────────────┘   │     │      │
-│  │  │                                                            │     │      │
-│  │  │  ┌──────────────────────────────────────────────────┐   │     │      │
-│  │  │  │ RDS SUBNET (Database)                             │   │     │      │
-│  │  │  │  • Aurora PostgreSQL 15.8 (Serverless v2)         │   │     │      │
-│  │  │  │  • Auto-scaling: 0.5-16 ACU (1-32 GB RAM)         │   │     │      │
-│  │  │  │  • Multi-AZ: Writer + Reader instances            │   │     │      │
-│  │  │  │  • Private only (no public access)                │   │     │      │
-│  │  │  │  • Shared across regions                          │   │     │      │
-│  │  │  └──────────────────────────────────────────────────┘   │     │      │
-│  │  │                                                            │     │      │
-│  │  │  ┌──────────────────────────────────────────────────┐   │     │      │
-│  │  │  │ VPC ENDPOINTS (Cost Optimization)                 │   │     │      │
-│  │  │  │  • S3 Gateway Endpoint                            │   │     │      │
-│  │  │  │  • ECR API Interface Endpoint                     │   │     │      │
-│  │  │  │  • ECR DKR Interface Endpoint                     │   │     │      │
-│  │  │  │  • Reduces NAT Gateway data transfer costs        │   │     │      │
-│  │  │  └──────────────────────────────────────────────────┘   │     │      │
+┌───────────────────────────────────────────────────────────────────────────┐
+│                          US-EAST-2 REGION (PRIMARY)                       │
+├───────────────────────────────────────────────────────────────────────────┤
+│                                                                           │
+│  ┌───────────────────────────────────────────────────────────────────┐    │
+│  │                    NETWORK LOAD BALANCER (NLB)                    │    │
+│  │  • TLS Termination (ACM Certificate)                              │    │
+│  │  • Static IP Addresses (per AZ)                                   │    │
+│  │  • Layer 4 (TCP) - Low latency                                    │    │
+│  │  • Source IP Preservation                                         │    │
+│  │  • HTTPS:443 → HTTP:8080 (backend)                                │    │
+│  └───────────────────────────────────────────────────────────────────┘    │
+│                                  │                                        │
+│  ┌───────────────────────────────▼─────────────────────────────────┐      │
+│  │                         VPC (10.0.0.0/16)                       │      │
+│  │                                                                 │      │
+│  │  ┌─────────────────────────────────────────────────────────┐    │      │
+│  │  │                  PUBLIC SUBNETS (system0, system1)      │    │      │
+│  │  │  • Internet Gateway (IGW)                               │    │      │
+│  │  │  • NAT Gateway (fck-nat - cost optimized)               │    │      │
+│  │  │  • Network Load Balancers                               │    │      │
+│  │  │  • Multi-AZ (us-east-2a, us-east-2b)                    │    │      │
+│  │  └─────────────────────────────────────────────────────────┘    │      │
+│  │                              │                                  │      │
+│  │  ┌───────────────────────────▼────────────────────────────┐     │      │
+│  │  │                  PRIVATE SUBNETS                       │     │      │
+│  │  │                                                        │     │      │
+│  │  │  ┌──────────────────────────────────────────────────┐  │     │      │
+│  │  │  │ SYSTEM SUBNETS (system0, system1)                │  │     │      │
+│  │  │  │  • EKS Control Plane                             │  │     │      │
+│  │  │  │  • EKS Managed Node Groups                       │  │     │      │
+│  │  │  │  • Graviton ARM instances (t4g.xlarge)           │  │     │      │
+│  │  │  │  • ON_DEMAND capacity (stable)                   │  │     │      │
+│  │  │  └──────────────────────────────────────────────────┘  │     │      │
+│  │  │                                                        │     │      │
+│  │  │  ┌──────────────────────────────────────────────────┐  │     │      │
+│  │  │  │ PROVISIONER SUBNET                               │  │     │      │
+│  │  │  │  • Coder External Provisioner pods               │  │     │      │
+│  │  │  │  • Workspace orchestration                       │  │     │      │
+│  │  │  └──────────────────────────────────────────────────┘  │     │      │
+│  │  │                                                        │     │      │
+│  │  │  ┌──────────────────────────────────────────────────┐  │     │      │
+│  │  │  │ WORKSPACE SUBNET (ws-all)                        │  │     │      │
+│  │  │  │  • Coder Workspace pods                          │  │     │      │
+│  │  │  │  • Karpenter auto-scaled nodes                   │  │     │      │
+│  │  │  │  • User development environments                 │  │     │      │
+│  │  │  └──────────────────────────────────────────────────┘  │     │      │
+│  │  │                                                        │     │      │
+│  │  │  ┌──────────────────────────────────────────────────┐  │     │      │
+│  │  │  │ RDS SUBNET (Database)                            │  │     │      │
+│  │  │  │  • Aurora PostgreSQL 15.8 (Serverless v2)        │  │     │      │
+│  │  │  │  • Auto-scaling: 0.5-16 ACU (1-32 GB RAM)        │  │     │      │
+│  │  │  │  • Multi-AZ: Writer + Reader instances           │  │     │      │
+│  │  │  │  • Private only (no public access)               │  │     │      │
+│  │  │  │  • Shared across regions                         │  │     │      │
+│  │  │  └──────────────────────────────────────────────────┘  │     │      │
+│  │  │                                                        │     │      │
+│  │  │  ┌──────────────────────────────────────────────────┐  │     │      │
+│  │  │  │ VPC ENDPOINTS (Cost Optimization)                │  │     │      │
+│  │  │  │  • S3 Gateway Endpoint                           │  │     │      │
+│  │  │  │  • ECR API Interface Endpoint                    │  │     │      │
+│  │  │  │  • ECR DKR Interface Endpoint                    │  │     │      │
+│  │  │  │  • Reduces NAT Gateway data transfer costs       │  │     │      │
+│  │  │  └──────────────────────────────────────────────────┘  │     │      │
 │  │  └────────────────────────────────────────────────────────┘     │      │
 │  └─────────────────────────────────────────────────────────────────┘      │
-│                                                                               │
-│  ┌────────────────────────────────────────────────────────────────────┐    │
-│  │                   EKS CLUSTER (Kubernetes 1.x)                      │    │
-│  │                                                                      │    │
+│                                                                           │
+│  ┌───────────────────────────────────────────────────────────────────┐    │
+│  │                   EKS CLUSTER (Kubernetes 1.x)                    │    │
+│  │                                                                   │    │
 │  │  ┌──────────────────────────────────────────────────────────┐     │    │
-│  │  │ CODER NAMESPACE                                           │     │    │
-│  │  │  • Coder Server (Deployment)                              │     │    │
-│  │  │    - CODER_TLS_ENABLE = false (NLB handles TLS)           │     │    │
-│  │  │    - CODER_SECURE_AUTH_COOKIE = true                      │     │    │
-│  │  │    - CODER_REDIRECT_TO_ACCESS_URL = false                 │     │    │
-│  │  │    - GitHub OAuth integration                             │     │    │
-│  │  │    - PostgreSQL RDS connection                            │     │    │
-│  │  │  • Service Type: LoadBalancer (creates NLB)               │     │    │
-│  │  │  • ACM Certificate for TLS termination                    │     │    │
+│  │  │ CODER NAMESPACE                                          │     │    │
+│  │  │  • Coder Server (Deployment)                             │     │    │
+│  │  │    - CODER_TLS_ENABLE = false (NLB handles TLS)          │     │    │
+│  │  │    - CODER_SECURE_AUTH_COOKIE = true                     │     │    │
+│  │  │    - CODER_REDIRECT_TO_ACCESS_URL = false                │     │    │
+│  │  │    - GitHub OAuth integration                            │     │    │
+│  │  │    - PostgreSQL RDS connection                           │     │    │
+│  │  │  • Service Type: LoadBalancer (creates NLB)              │     │    │
+│  │  │  • ACM Certificate for TLS termination                   │     │    │
 │  │  └──────────────────────────────────────────────────────────┘     │    │
-│  │                                                                      │    │
+│  │                                                                   │    │
 │  │  ┌──────────────────────────────────────────────────────────┐     │    │
-│  │  │ CODER-WS NAMESPACE (Workspaces)                           │     │    │
-│  │  │  • Coder External Provisioner (Deployment)                │     │    │
-│  │  │  • Workspace pods (dynamically created)                   │     │    │
-│  │  │  • EBS volumes for persistent storage                     │     │    │
-│  │  │  • IRSA for AWS permissions                               │     │    │
+│  │  │ CODER-WS NAMESPACE (Workspaces)                          │     │    │
+│  │  │  • Coder External Provisioner (Deployment)               │     │    │
+│  │  │  • Workspace pods (dynamically created)                  │     │    │
+│  │  │  • EBS volumes for persistent storage                    │     │    │
+│  │  │  • IRSA for AWS permissions                              │     │    │
 │  │  └──────────────────────────────────────────────────────────┘     │    │
-│  │                                                                      │    │
+│  │                                                                   │    │
 │  │  ┌──────────────────────────────────────────────────────────┐     │    │
-│  │  │ INFRASTRUCTURE SERVICES (kube-system, etc.)               │     │    │
-│  │  │  • AWS Load Balancer Controller                           │     │    │
-│  │  │    - Creates and manages NLBs                             │     │    │
-│  │  │    - Service annotations for TLS termination              │     │    │
-│  │  │  • Karpenter                                               │     │    │
-│  │  │    - Auto-scaling for workspace nodes                     │     │    │
-│  │  │    - SQS queue + EventBridge                              │     │    │
-│  │  │    - Cost-optimized instance selection                    │     │    │
-│  │  │  • EBS CSI Driver                                          │     │    │
-│  │  │    - Dynamic volume provisioning                          │     │    │
-│  │  │  • Cert-Manager                                            │     │    │
-│  │  │    - Certificate management                               │     │    │
-│  │  │  • Metrics Server                                          │     │    │
-│  │  │    - Resource metrics collection                          │     │    │
-│  │  │  • CoreDNS, kube-proxy, vpc-cni (EKS addons)              │     │    │
+│  │  │ INFRASTRUCTURE SERVICES (kube-system, etc.)              │     │    │
+│  │  │  • AWS Load Balancer Controller                          │     │    │
+│  │  │    - Creates and manages NLBs                            │     │    │
+│  │  │    - Service annotations for TLS termination             │     │    │
+│  │  │  • Karpenter                                             │     │    │
+│  │  │    - Auto-scaling for workspace nodes                    │     │    │
+│  │  │    - SQS queue + EventBridge                             │     │    │
+│  │  │    - Cost-optimized instance selection                   │     │    │
+│  │  │  • EBS CSI Driver                                        │     │    │
+│  │  │    - Dynamic volume provisioning                         │     │    │
+│  │  │  • Cert-Manager                                          │     │    │
+│  │  │    - Certificate management                              │     │    │
+│  │  │  • Metrics Server                                        │     │    │
+│  │  │    - Resource metrics collection                         │     │    │
+│  │  │  • CoreDNS, kube-proxy, vpc-cni (EKS addons)             │     │    │
 │  │  └──────────────────────────────────────────────────────────┘     │    │
-│  └────────────────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────────────────┘
+│  └───────────────────────────────────────────────────────────────────┘    │
+└───────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                          US-WEST-2 REGION (SECONDARY)                        │
+│                          US-WEST-2 REGION (SECONDARY)                       │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  • Similar architecture to us-east-2                                         │
-│  • Infrastructure code exists (acm/, k8s/coder-server/, route53/)            │
-│  • NOT YET DEPLOYED (pending deployment)                                     │
-│  • Would share the same RDS database for unified accounts                    │
-│  • Independent EKS cluster with own NLB                                      │
+│  • Similar architecture to us-east-2                                        │
+│  • Infrastructure code exists (acm/, k8s/coder-server/, route53/)           │
+│  • NOT YET DEPLOYED (pending deployment)                                    │
+│  • Would share the same RDS database for unified accounts                   │
+│  • Independent EKS cluster with own NLB                                     │
 └─────────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                               SECURITY LAYER                                 │
+│                               SECURITY LAYER                                │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │  • IAM Roles (IRSA - IAM Roles for Service Accounts)                        │
 │    - Coder Server → RDS access                                              │
@@ -175,14 +175,14 @@ This document provides a comprehensive visual representation of the **coderdemo.
 │    - EBS Controller → EBS volume management                                 │
 │    - Load Balancer Controller → ELB management                              │
 │    - Karpenter → EC2 instance launching                                     │
-│  • Security Groups                                                           │
-│    - EKS cluster security group                                              │
-│    - Node security group                                                     │
+│  • Security Groups                                                          │
+│    - EKS cluster security group                                             │
+│    - Node security group                                                    │
 │    - RDS security group (port 5432 from VPC CIDR)                           │
 │    - VPC endpoints security group (port 443)                                │
-│  • Network ACLs                                                              │
-│  • TLS Certificates (ACM)                                                    │
-│    - Auto-renewal enabled                                                    │
+│  • Network ACLs                                                             │
+│  • TLS Certificates (ACM)                                                   │
+│    - Auto-renewal enabled                                                   │
 │    - Dynamically fetched (not hardcoded)                                    │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
