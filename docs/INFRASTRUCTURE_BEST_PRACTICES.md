@@ -1,7 +1,5 @@
 # Infrastructure Best Practices for Coder Deployment
 
-This document outlines the architectural decisions, best practices, and rationale behind the Coder infrastructure deployment on AWS EKS. Use this as a reference when discussing technical implementation with customers and prospects.
-
 ---
 
 ## Table of Contents
