@@ -4,6 +4,11 @@ Welcome to the Coder Demo Environment's Github repository!
 
 This project powers ["coderdemo.io"](https://coderdemo.io), a production-grade, multi-region demonstration environment showcasing Coder's cloud development capabilities, workspace proxies, and global deployment patterns.
 
+> [!IMPORTANT]
+> **This infrastructure is HEAVILY AWS-opinionated.**
+>
+> This repository uses AWS-specific services and patterns throughout (EKS, Aurora Serverless v2, VPC, Route53, ACM, etc.). While Coder itself is cloud-agnostic, this particular deployment is designed exclusively for AWS. If you're deploying on GCP, Azure, or other cloud providers, you'll need to significantly adapt the infrastructure code.
+
 ---
 
 ## Getting Started
