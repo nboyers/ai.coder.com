@@ -39,8 +39,8 @@ This document provides a comprehensive visual representation of the **coderdemo.
 │  │  • *.us-west-2.coderdemo.io    → Oregon workspace apps              │    │
 │  └─────────────────────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────────────────┘
-              │                                              │
-              │                                              │
+              │                                             │
+              │                                             │
     ┌─────────▼──────────┐                       ┌──────────▼─────────┐
     │  US-EAST-2 (Ohio)  │                       │ US-WEST-2 (Oregon) │
     │   PRIMARY REGION   │                       │  SECONDARY REGION  │
